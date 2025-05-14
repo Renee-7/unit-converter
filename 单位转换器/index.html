@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单位转换器 | Unit Converter</title>
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <style>
+    /* 重置样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(to bottom, #ffffff, #f5f5f7);
+      color: #1d1d1f;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    /* 主容器 */
+    .container {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: bold;
+    }
+    
+    /* 转换器卡片 */
+    .converter-card {
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 24px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* 表单样式 */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #1d1d1f;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+    
+    /* 改进输入框样式 */
+    input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    /* 改进选择框样式 */
+    select {
+      width: 100%;
+      padding: 10px 36px 10px 14px; /* 右侧增加更多空间给箭头 */
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 14px center; /* 调整箭头位置 */
+      background-size: 16px; /* 调整箭头大小 */
+    }
+    
+    select:focus, input:focus {
+      outline: none;
+      border-color: #0071e3;
+      box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+    }
+    
+    /* 转换部分布局 */
+    .conversion-container {
+      margin: 24px 0;
+    }
+    
+    .unit-selectors {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    
+    .selector-wrapper {
+      flex: 1;
+    }
+    
+    .swap-btn {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    
+    .swap-btn:hover {
+      transform: scale(1.1);
+      color: #0071e3;
+    }
+    
+    /* 结果显示 */
+    .result-container {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e5ea;
+    }
+    
+    .result-label {
+      font-size: 0.875rem;
+      color: #6e6e73;
+      margin-bottom: 8px;
+    }
+    
+    .result-value {
+      background-color: #f5f5f7;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    .result-unit {
+      font-size: 1.125rem;
+      color: #6e6e73;
+    }
+    
+    .formula {
+      margin-top: 8px;
+      font-size: 0.875rem;
+      color: #6e6e73;
+    }
+    
+    footer {
+      margin-top: 32px;
+      color: #6e6e73;
+      font-size: 0.75rem;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .unit-selectors {
+        flex-direction: column;
+      }
+      
+      .swap-btn {
+        transform: rotate(90deg);
+        margin: 8px 0;
+      }
+      
+      .swap-btn:hover {
+        transform: rotate(90deg) scale(1.1);
+      }
+    }
+    
+    /* 增强移动端触摸体验 */
+    @media (max-width: 768px) {
+      /* 增大触摸目标区域 */
+      select, input, button {
+        min-height: 44px; /* 苹果推荐的最小触摸目标高度 */
+      }
+      
+      .form-group {
+        margin-bottom: 20px; /* 增加表单组之间的间距 */
+      }
+      
+      /* 增强选择框和输入框 */
+      select, input {
+        font-size: 16px; /* 防止iOS自动缩放 */
+        padding: 12px 36px 12px 16px; /* 更大的内边距 */
+      }
+      
+      /* 更大的下拉箭头 */
+      select {
+        background-size: 18px;
+      }
+      
+      /* 更大的交换按钮 */
+      .swap-btn svg {
+        width: 28px;
+        height: 28px;
+      }
+      
+      /* 对结果区域优化 */
+      .result-value {
+        padding: 14px 18px;
+        font-size: 1.75rem;
+      }
+      
+      .result-unit {
+        font-size: 1.25rem;
+      }
+    }
+    
+    /* 添加触摸反馈效果 */
+    @media (hover: none) {
+      /* 在不支持悬停的设备(触摸设备)上应用这些样式 */
+      select:active, input:active, button:active {
+        transform: scale(0.98);
+      }
+      
+      .swap-btn:active {
+        background-color: rgba(0, 113, 227, 0.1);
+        transform: rotate(90deg) scale(1.05);
+      }
+    }
+    
+    /* 平滑过渡 */
+    * {
+      transition: all 0.2s ease;
+    }
+    
+    /* 亮度模式自适应 */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: linear-gradient(to bottom, #1a1a1a, #2c2c2e);
+        color: #f5f5f7;
+      }
+      
+      .converter-card {
+        background-color: #2c2c2e;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+      }
+      
+      label {
+        color: #f5f5f7;
+      }
+      
+      select, input {
+        background-color: #3a3a3c;
+        border-color: #4c4c4e;
+        color: #f5f5f7;
+      }
+      
+      select {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1a6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      }
+      
+      .result-value {
+        background-color: #3a3a3c;
+      }
+      
+      .formula, .result-label, .result-unit {
+        color: #a1a1a6;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>单位转换器</h1>
+    
+    <div class="converter-card">
+      <!-- 单位类型选择 -->
+      <div class="form-group">
+        <label for="unit-type">单位类型</label>
+        <select id="unit-type">
+          <option value="temperature">温度</option>
+          <option value="length">长度</option>
+          <option value="weight">重量</option>
+          <option value="volume">容量</option>
+        </select>
+      </div>
+      
+      <!-- 输入值 -->
+      <div class="form-group">
+        <label for="input-value">输入值</label>
+        <input type="text" id="input-value" value="0" placeholder="输入数值">
+      </div>
+      
+      <!-- 单位选择器 -->
+      <div class="unit-selectors">
+        <div class="selector-wrapper">
+          <label for="from-unit">从</label>
+          <select id="from-unit"></select>
+        </div>
+        
+        <button class="swap-btn" id="swap-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 16V4m0 0L3 8m4-4l4 4" />
+            <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+        </button>
+        
+        <div class="selector-wrapper">
+          <label for="to-unit">到</label>
+          <select id="to-unit"></select>
+        </div>
+      </div>
+      
+      <!-- 结果显示 -->
+      <div class="result-container">
+        <div class="result-label">转换结果</div>
+        <div>
+          <span class="result-value" id="result-value">0</span>
+          <span class="result-unit" id="result-unit"></span>
+        </div>
+        <div class="formula" id="formula">0 = 0</div>
+      </div>
+    </div>
+    
+    <footer>
+      <p>© <span id="current-year"></span> 单位转换器 | Unit Converter</p>
+    </footer>
+  </div>
+  
+  <script>
+    // 单位定义
+    const units = {
+      temperature: [
+        { id: 'celsius', name: '摄氏度 (°C)', toBase: v => v, fromBase: v => v },
+        { id: 'fahrenheit', name: '华氏度 (°F)', toBase: v => (v - 32) * 5 / 9, fromBase: v => v * 9 / 5 + 32 },
+        { id: 'kelvin', name: '开尔文 (K)', toBase: v => v - 273.15, fromBase: v => v + 273.15 }
+      ],
+      length: [
+        { id: 'meter', name: '米 (m)', toBase: v => v, fromBase: v => v },
+        { id: 'centimeter', name: '厘米 (cm)', toBase: v => v / 100, fromBase: v => v * 100 },
+        { id: 'kilometer', name: '千米 (km)', toBase: v => v * 1000, fromBase: v => v / 1000 },
+        { id: 'inch', name: '英寸 (in)', toBase: v => v * 0.0254, fromBase: v => v / 0.0254 },
+        { id: 'foot', name: '英尺 (ft)', toBase: v => v * 0.3048, fromBase: v => v / 0.3048 },
+        { id: 'yard', name: '码 (yd)', toBase: v => v * 0.9144, fromBase: v => v / 0.9144 },
+        { id: 'mile', name: '英里 (mi)', toBase: v => v * 1609.344, fromBase: v => v / 1609.344 }
+      ],
+      weight: [
+        { id: 'kilogram', name: '千克 (kg)', toBase: v => v, fromBase: v => v },
+        { id: 'gram', name: '克 (g)', toBase: v => v / 1000, fromBase: v => v * 1000 },
+        { id: 'pound', name: '磅 (lb)', toBase: v => v * 0.45359237, fromBase: v => v / 0.45359237 },
+        { id: 'ounce', name: '盎司 (oz)', toBase: v => v * 0.02834952, fromBase: v => v / 0.02834952 },
+        { id: 'ton', name: '吨 (t)', toBase: v => v * 1000, fromBase: v => v / 1000 }
+      ],
+      volume: [
+        { id: 'liter', name: '升 (L)', toBase: v => v, fromBase: v => v },
+        { id: 'milliliter', name: '毫升 (mL)', toBase: v => v / 1000, fromBase: v => v * 1000 },
+        { id: 'gallon', name: '加仑 (gal)', toBase: v => v * 3.78541, fromBase: v => v / 3.78541 },
+        { id: 'pint', name: '品脱 (pt)', toBase: v => v * 0.473176, fromBase: v => v / 0.473176 },
+        { id: 'cubic_cm', name: '立方厘米 (cm³)', toBase: v => v / 1000, fromBase: v => v * 1000 }
+      ]
+    };
+    
+    // 获取DOM元素
+    const unitTypeSelect = document.getElementById('unit-type');
+    const inputValueEl = document.getElementById('input-value');
+    const fromUnitSelect = document.getElementById('from-unit');
+    const toUnitSelect = document.getElementById('to-unit');
+    const swapBtn = document.getElementById('swap-btn');
+    const resultValueEl = document.getElementById('result-value');
+    const resultUnitEl = document.getElementById('result-unit');
+    const formulaEl = document.getElementById('formula');
+    const currentYearEl = document.getElementById('current-year');
+    
+    // 设置当前年份
+    currentYearEl.textContent = new Date().getFullYear();
+    
+    // 填充单位选择器选项
+    function populateUnitSelects(unitType) {
+      fromUnitSelect.innerHTML = '';
+      toUnitSelect.innerHTML = '';
+      
+      const unitOptions = units[unitType];
+      
+      unitOptions.forEach((unit, index) => {
+        const fromOption = document.createElement('option');
+        fromOption.value = unit.id;
+        fromOption.textContent = unit.name;
+        fromUnitSelect.appendChild(fromOption);
+        
+        const toOption = document.createElement('option');
+        toOption.value = unit.id;
+        toOption.textContent = unit.name;
+        toUnitSelect.appendChild(toOption);
+        
+        // 默认选择第一和第二个单位（如果有的话）
+        if (index === 0) {
+          fromUnitSelect.value = unit.id;
+        }
+        if (index === 1 || (index === 0 && unitOptions.length === 1)) {
+          toUnitSelect.value = unit.id;
+        }
+      });
+    }
+    
+    // 执行单位转换
+    function convertUnits() {
+      const unitType = unitTypeSelect.value;
+      const inputValue = parseFloat(inputValueEl.value);
+      
+      if (isNaN(inputValue)) {
+        resultValueEl.textContent = '';
+        resultUnitEl.textContent = '';
+        formulaEl.textContent = '请输入有效的数值';
+        return;
+      }
+      
+      const fromUnitId = fromUnitSelect.value;
+      const toUnitId = toUnitSelect.value;
+      
+      const fromUnit = units[unitType].find(u => u.id === fromUnitId);
+      const toUnit = units[unitType].find(u => u.id === toUnitId);
+      
+      if (!fromUnit || !toUnit) return;
+      
+      // 转换: 首先转换到基本单位，然后转换到目标单位
+      const baseValue = fromUnit.toBase(inputValue);
+      const resultValue = toUnit.fromBase(baseValue);
+      
+      // 格式化结果
+      const formattedResult = formatValue(resultValue);
+      
+      // 更新UI
+      resultValueEl.textContent = formattedResult;
+      resultUnitEl.textContent = toUnit.name;
+      formulaEl.textContent = `${inputValue} ${fromUnit.name} = ${formattedResult} ${toUnit.name}`;
+    }
+    
+    // 格式化数值
+    function formatValue(value) {
+      // 处理非常小或非常大的数字
+      if (Math.abs(value) < 0.000001 && value !== 0) {
+        return value.toExponential(6);
+      }
+      
+      // 处理一般数字，保留合适的小数位
+      const decimalPlaces = value % 1 === 0 ? 0 : Math.min(10, Math.max(2, 6 - Math.floor(Math.log10(Math.abs(value)))));
+      return value.toFixed(decimalPlaces);
+    }
+    
+    // 交换单位
+    function swapUnits() {
+      const tempValue = fromUnitSelect.value;
+      fromUnitSelect.value = toUnitSelect.value;
+      toUnitSelect.value = tempValue;
+      convertUnits();
+    }
+    
+    // 事件监听器
+    unitTypeSelect.addEventListener('change', () => {
+      populateUnitSelects(unitTypeSelect.value);
+      convertUnits();
+    });
+    
+    inputValueEl.addEventListener('input', convertUnits);
+    fromUnitSelect.addEventListener('change', convertUnits);
+    toUnitSelect.addEventListener('change', convertUnits);
+    swapBtn.addEventListener('click', swapUnits);
+    
+    // 初始化
+    populateUnitSelects(unitTypeSelect.value);
+    convertUnits();
+
+    // 移动端优化
+    function setupMobileOptimizations() {
+      // 检测是否为移动设备
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // 输入框焦点优化
+        inputValueEl.addEventListener('focus', function() {
+          // 在移动设备上，输入框获取焦点时滚动到视图中央
+          setTimeout(() => {
+            this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
+        });
+        
+        // 选择框优化 - 在某些移动浏览器中处理默认行为
+        const allSelects = [unitTypeSelect, fromUnitSelect, toUnitSelect];
+        allSelects.forEach(select => {
+          select.addEventListener('touchend', (e) => {
+            // 在某些移动浏览器中，阻止可能的双击缩放
+            e.preventDefault();
+          }, { passive: false });
+          
+          // 选择改变后提供触觉反馈
+          select.addEventListener('change', () => {
+            if ('vibrate' in navigator) {
+              // 短暂震动提供触觉反馈 (iOS可能不支持)
+              navigator.vibrate(10);
+            }
+          });
+        });
+        
+        // 为交换按钮添加触觉反馈
+        swapBtn.addEventListener('click', () => {
+          if ('vibrate' in navigator) {
+            navigator.vibrate(15);
+          }
+        });
+        
+        // 防止缩放问题
+        document.body.addEventListener('touchstart', function(e) {
+          if (e.touches.length > 1) {
+            // 防止在某些浏览器中的意外缩放
+            e.preventDefault();
+          }
+        }, { passive: false });
+      }
+    }
+
+    // 初始化移动优化
+    setupMobileOptimizations();
+  </script>
+</body>
+</html> 
